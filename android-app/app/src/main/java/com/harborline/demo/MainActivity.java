@@ -1,6 +1,7 @@
 package com.harborline.demo;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -27,11 +28,14 @@ public class MainActivity extends Activity {
     private int activeIndex;
     private Spinner accountSpinner;
     private LinearLayout dashboard;
+    private TextView reviewStatus;
+    private Button reviewButton;
+    private SharedPreferences reviewStore;
     private Handler rotationHandler = new Handler();
     private boolean rotating = true;
     private final Runnable rotation = () -> { if (rotating && accounts != null && accounts.size() > 1) { activeIndex = (activeIndex + 1) % accounts.size(); accountSpinner.setSelection(activeIndex); showAccount(accounts.get(activeIndex)); } rotationHandler.postDelayed(rotation, 10000); };
 
-    @Override public void onCreate(Bundle state) { super.onCreate(state); database = new DatabaseHelper(this); showLogin(); }
+    @Override public void onCreate(Bundle state) { super.onCreate(state); database = new DatabaseHelper(this); reviewStore = getSharedPreferences("review_status", MODE_PRIVATE); showLogin(); }
     @Override protected void onDestroy() { rotationHandler.removeCallbacks(rotation); database.close(); super.onDestroy(); }
 
     private LinearLayout page() { LinearLayout page = new LinearLayout(this); page.setOrientation(LinearLayout.VERTICAL); page.setPadding(28, 28, 28, 24); page.setBackgroundColor(Color.rgb(247, 250, 247)); return page; }
