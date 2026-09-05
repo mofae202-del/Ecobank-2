@@ -1,2 +1,85 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#073d39"><title>Harborline | Demo operations</title><link rel="stylesheet" href="styles.css"><style>body{background:#eef4f0}.admin-shell{max-width:1240px;margin:auto;padding:28px 24px 70px}.admin-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:42px}.back-link{color:var(--teal);font:700 11px Arial,sans-serif;text-decoration:none;text-transform:uppercase;letter-spacing:.08em}.admin-title{display:flex;justify-content:space-between;align-items:end;margin-bottom:28px}.admin-title h1{font-size:42px;font-weight:400;margin:0}.admin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px}.admin-stat{background:#fff;border:1px solid var(--line);padding:22px}.admin-stat span{display:block;color:var(--muted);font:11px Arial,sans-serif;text-transform:uppercase;letter-spacing:.08em}.admin-stat strong{display:block;font-size:30px;font-weight:400;margin-top:12px}.admin-section{background:#fff;border:1px solid var(--line);padding:25px;margin-bottom:24px}.admin-section h2{font-size:24px;font-weight:400;margin:0 0 18px}.admin-table{width:100%;border-collapse:collapse;font:12px Arial,sans-serif}.admin-table th{color:var(--muted);font-size:10px;text-align:left;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--line);padding:10px}.admin-table td{border-bottom:1px solid var(--line);padding:14px 10px}.admin-table .ok{color:#338a62}.admin-table .pending{color:#b97831}.admin-note{color:var(--muted);font:12px Arial,sans-serif;line-height:1.5}.admin-actions{display:flex;gap:8px;align-items:center}.admin-actions button{cursor:pointer;border:1px solid #c9d8d1;background:#fff;color:var(--teal);padding:10px 14px;font:700 10px Arial,sans-serif;text-transform:uppercase}.admin-actions input{width:230px;padding:10px;font-size:12px}@media(max-width:700px){.admin-title{display:block}.admin-title .admin-actions{margin-top:18px}.admin-grid{grid-template-columns:1fr}.admin-section{padding:18px;overflow:auto}.admin-table{min-width:650px}.admin-actions{flex-wrap:wrap}.admin-actions input{width:100%}}</style></head><body><main class="admin-shell"><nav class="admin-nav"><a class="brand" href="index.html"><span class="brand-mark">H</span><span><strong>HARBORLINE</strong><small>DEMO OPERATIONS</small></span></a><a class="back-link" href="index.html">Back to customer app</a></nav><div class="admin-title"><div><p class="eyebrow">SANDBOX OPERATIONS</p><h1>Demo activity</h1><p class="admin-note">Review-only console for fictional accounts and masked local events.</p></div><div class="admin-actions"><input id="admin-secret" type="password" value="harborline-demo-secret" aria-label="Demo webhook secret"><button id="refresh-events">Refresh events</button></div></div><section class="admin-grid"><div class="admin-stat"><span>Demo accounts</span><strong id="account-count">0</strong></div><div class="admin-stat"><span>Review requests</span><strong id="review-count">0</strong></div><div class="admin-stat"><span>Webhook events</span><strong id="event-count">0</strong></div></section><section class="admin-section"><h2>Account directory</h2><div id="accounts-table"></div></section><section class="admin-section"><h2>Webhook event feed</h2><p id="event-message" class="admin-note">Loading masked events...</p><div id="events-table"></div></section></main><script type="module" src="/src/admin.js"></script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#073d39">
+  <title>Harborline | Demo operations</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body{background:#eef4f0}
+    .admin-shell{max-width:1240px;margin:auto;padding:28px 24px 70px}
+    .admin-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:42px}
+    .back-link{color:var(--teal);font:700 11px Arial,sans-serif;text-decoration:none;text-transform:uppercase;letter-spacing:.08em;transition:var(--transition)}
+    .back-link:hover{opacity:.7}
+    .admin-title{display:flex;justify-content:space-between;align-items:end;margin-bottom:28px}
+    .admin-title h1{font-size:42px;font-weight:400;margin:0}
+    .admin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px}
+    .admin-stat{background:#fff;border:1px solid var(--line);padding:22px;border-radius:var(--radius);transition:var(--transition)}
+    .admin-stat:hover{box-shadow:0 4px 16px rgba(12,53,45,.06)}
+    .admin-stat span{display:block;color:var(--muted);font:11px Arial,sans-serif;text-transform:uppercase;letter-spacing:.08em}
+    .admin-stat strong{display:block;font-size:30px;font-weight:400;margin-top:12px}
+    .admin-section{background:#fff;border:1px solid var(--line);padding:25px;margin-bottom:24px;border-radius:var(--radius)}
+    .admin-section h2{font-size:24px;font-weight:400;margin:0 0 18px}
+    .admin-table{width:100%;border-collapse:collapse;font:12px Arial,sans-serif}
+    .admin-table th{color:var(--muted);font-size:10px;text-align:left;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--line);padding:10px}
+    .admin-table td{border-bottom:1px solid var(--line);padding:14px 10px}
+    .admin-table tr{transition:var(--transition)}
+    .admin-table tbody tr:hover{background:#f4faf7}
+    .admin-table .ok{color:#338a62}
+    .admin-table .pending{color:#b97831}
+    .admin-note{color:var(--muted);font:12px Arial,sans-serif;line-height:1.5}
+    .admin-actions{display:flex;gap:8px;align-items:center}
+    .admin-actions button{cursor:pointer;border:1px solid #c9d8d1;background:#fff;color:var(--teal);padding:10px 14px;font:700 10px Arial,sans-serif;text-transform:uppercase;border-radius:var(--radius);transition:var(--transition)}
+    .admin-actions button:hover{background:var(--mint);border-color:var(--teal)}
+    .admin-actions button:disabled{opacity:.6;cursor:not-allowed}
+    .admin-actions input{width:230px;padding:10px;font-size:12px;border-radius:var(--radius)}
+    @media(max-width:700px){
+      .admin-title{display:block}
+      .admin-title .admin-actions{margin-top:18px}
+      .admin-grid{grid-template-columns:1fr}
+      .admin-section{padding:18px;overflow:auto}
+      .admin-table{min-width:650px}
+      .admin-actions{flex-wrap:wrap}
+      .admin-actions input{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <main class="admin-shell">
+    <nav class="admin-nav">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">H</span>
+        <span><strong>HARBORLINE</strong><small>DEMO OPERATIONS</small></span>
+      </a>
+      <a class="back-link" href="index.html">Back to customer app</a>
+    </nav>
+    <div class="admin-title">
+      <div>
+        <p class="eyebrow">SANDBOX OPERATIONS</p>
+        <h1>Demo activity</h1>
+        <p class="admin-note">Review-only console for fictional accounts and masked local events.</p>
+      </div>
+      <div class="admin-actions">
+        <input id="admin-secret" type="password" value="harborline-demo-secret" aria-label="Demo webhook secret">
+        <button id="refresh-events">Refresh events</button>
+      </div>
+    </div>
+    <section class="admin-grid">
+      <div class="admin-stat"><span>Demo accounts</span><strong id="account-count">0</strong></div>
+      <div class="admin-stat"><span>Review requests</span><strong id="review-count">0</strong></div>
+      <div class="admin-stat"><span>Webhook events</span><strong id="event-count">0</strong></div>
+    </section>
+    <section class="admin-section">
+      <h2>Account directory</h2>
+      <div id="accounts-table"></div>
+    </section>
+    <section class="admin-section">
+      <h2>Webhook event feed</h2>
+      <p id="event-message" class="admin-note">Loading masked events...</p>
+      <div id="events-table"></div>
+    </section>
+  </main>
+  <script type="module" src="/src/admin.js"></script>
+</body>
+</html>

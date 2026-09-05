@@ -8,15 +8,9 @@
   <title>Harborline | Demo banking</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
-  <style>
-    .auth-tabs{display:flex;border-bottom:1px solid var(--line);margin:-10px 0 30px}.auth-tab{border:0;border-bottom:2px solid transparent;background:transparent;color:var(--muted);padding:10px 16px 13px 0;margin-right:24px;font:700 11px Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}.auth-tab.active{color:var(--teal);border-bottom-color:var(--teal)}
-    input,select{width:100%;border:1px solid #d3dfd9;padding:14px 15px;font-size:15px;outline:none;color:var(--ink);background:#fbfdfb}input:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 3px #dcefe8}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form-message{color:var(--teal);font:12px Arial,sans-serif;min-height:15px;margin:9px 0 0}
-    .dashboard-actions{display:flex;align-items:end;gap:8px;flex-wrap:wrap;justify-content:flex-end}.account-switcher label{margin:0 0 5px;font-size:9px}.account-switcher select{padding:10px 30px 10px 10px;font-size:12px;min-width:165px}.square-button{height:37px;width:37px;border:1px solid #c9d8d1;background:#fff;color:var(--teal);font:bold 17px Arial,sans-serif;cursor:pointer}.square-button:hover{background:var(--mint)}
-    .review-card{background:#fff;border:1px solid var(--line);padding:23px 25px;margin:0 0 43px;display:grid;grid-template-columns:1fr 250px;gap:18px;align-items:end}.review-card h2{font-size:23px;font-weight:400;margin:0 0 6px}.review-form label{margin-top:0}.review-form select{padding:11px;font-size:12px}.review-submit{margin-top:9px;padding:12px 14px;font-size:10px}.review-submit:disabled{background:#8ca8a1;border-color:#8ca8a1;cursor:wait}.review-status{grid-column:1/-1;border-top:1px solid var(--line);padding-top:15px;display:flex;gap:9px;align-items:flex-start;color:var(--teal);font:12px Arial,sans-serif}.review-status .status-dot{margin-top:4px;flex:none}.review-status strong{display:block;font-weight:700}.review-status small{display:block;color:var(--muted);margin-top:4px;line-height:1.5}.processing-dot{background:var(--orange)}
-    .money-card{background:#fff;border:1px solid var(--line);padding:23px 25px;margin:0 0 43px}.money-heading{margin-bottom:18px;border:0;padding:0;align-items:start}.money-heading h2{font-size:23px;font-weight:400;margin:0 0 6px}.sandbox-badge{font:700 10px Arial,sans-serif;letter-spacing:.1em;color:var(--teal);border:1px solid #b9d9ce;padding:7px 9px}.money-tabs{display:flex;border-bottom:1px solid var(--line);margin-bottom:18px}.money-tab{border:0;border-bottom:2px solid transparent;background:transparent;color:var(--muted);padding:10px 18px 12px 0;margin-right:22px;font:700 11px Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}.money-tab.active{color:var(--teal);border-color:var(--teal)}.money-submit{margin-top:18px;max-width:280px}.money-status{border-top:1px solid var(--line);margin-top:18px;padding-top:14px;font:12px Arial,sans-serif;color:var(--muted);line-height:1.5}.money-success{color:#338a62}.money-failure{color:#a2604e}
-    @media(max-width:800px){.dashboard-actions{justify-content:flex-start;margin-top:16px}.dashboard-head{display:block}.dashboard-head .outline-button{padding:10px 12px}.account-switcher select{min-width:145px}}
-    @media(max-width:520px){.form-grid{grid-template-columns:1fr}.dashboard-actions{gap:6px}.account-switcher{width:100%}.account-switcher select{width:100%}.review-card{display:block}.review-form{margin-top:18px}.review-status{margin-top:18px}.money-card{padding:20px 18px}.money-submit{max-width:none;width:100%}}
-  </style>
+  <meta property="og:image" content="https://bolt.new/static/og_default.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
 </head>
 <body>
   <div class="app-shell">
@@ -39,32 +33,72 @@
           <div class="feature-row"><span class="feature-icon">03</span><span>Installable on your device</span></div>
         </div>
         <div class="login-card">
-          <div class="auth-tabs" role="tablist" aria-label="Account access"><button class="auth-tab active" id="login-tab" role="tab" aria-selected="true" aria-controls="login-panel">Sign in</button><button class="auth-tab" id="signup-tab" role="tab" aria-selected="false" aria-controls="signup-panel">Create account</button></div>
-          <div id="login-panel" role="tabpanel" aria-labelledby="login-tab">
-          <div class="card-heading"><p class="eyebrow">WELCOME BACK</p><h2>Sign in to your account</h2><p>Use one of the seeded demo profiles below.</p></div>
-          <form id="login-form">
-            <label for="email">Email address</label>
-            <input id="email" type="email" autocomplete="username" placeholder="you@example.com" required>
-            <label for="password">Password</label>
-            <div class="password-wrap"><input id="password" type="password" autocomplete="current-password" placeholder="Enter demo password" required><button type="button" class="icon-button" id="toggle-password" aria-label="Show password">Show</button></div>
-            <button class="primary-button" type="submit">Sign in <span>-></span></button>
-            <p id="login-error" class="form-error" role="alert"></p>
-          </form>
-          <div class="demo-credentials">
-            <div class="section-label">DEMO CREDENTIALS</div>
-            <button class="credential" data-email="cappy1232025@outlook.com" data-password="Caskey!2489"><span><strong>Caskey Boney</strong><small>Personal account / USD</small></span><b>Use profile</b></button>
-            <button class="credential" data-email="eva02amofa@gmail.com" data-password="Eva!4502026"><span><strong>Eva Amofa</strong><small>Personal account / EUR</small></span><b>Use profile</b></button>
+          <div class="auth-tabs" role="tablist" aria-label="Account access">
+            <button class="auth-tab active" id="login-tab" role="tab" aria-selected="true" aria-controls="login-panel">Sign in</button>
+            <button class="auth-tab" id="signup-tab" role="tab" aria-selected="false" aria-controls="signup-panel">Create account</button>
           </div>
-          <p class="sandbox-note">This is a fictional prototype. It is not affiliated with Ecobank and does not connect to banking networks.</p>
+          <div id="login-panel" role="tabpanel" aria-labelledby="login-tab">
+            <div class="card-heading">
+              <p class="eyebrow">WELCOME BACK</p>
+              <h2>Sign in to your account</h2>
+              <p>Use one of the seeded demo profiles below.</p>
+            </div>
+            <form id="login-form">
+              <label for="email">Email address</label>
+              <input id="email" type="email" autocomplete="username" placeholder="you@example.com" required>
+              <label for="password">Password</label>
+              <div class="password-wrap">
+                <input id="password" type="password" autocomplete="current-password" placeholder="Enter demo password" required>
+                <button type="button" class="icon-button" id="toggle-password" aria-label="Show password">Show</button>
+              </div>
+              <button class="primary-button" type="submit">Sign in <span>-></span></button>
+              <p id="login-error" class="form-error" role="alert"></p>
+            </form>
+            <div class="demo-credentials">
+              <div class="section-label">DEMO CREDENTIALS</div>
+              <button class="credential" data-email="cappy1232025@outlook.com" data-password="Caskey!2489">
+                <span><strong>Caskey Boney</strong><small>Personal account / USD</small></span>
+                <b>Use profile</b>
+              </button>
+              <button class="credential" data-email="eva02amofa@gmail.com" data-password="Eva!4502026">
+                <span><strong>Eva Amofa</strong><small>Personal account / EUR</small></span>
+                <b>Use profile</b>
+              </button>
+            </div>
+            <p class="sandbox-note">This is a fictional prototype. It is not affiliated with Ecobank and does not connect to banking networks.</p>
           </div>
           <div id="signup-panel" class="hidden" role="tabpanel" aria-labelledby="signup-tab">
-            <div class="card-heading"><p class="eyebrow">NEW PROFILE</p><h2>Create a demo account</h2><p>Your details stay in this browser only.</p></div>
+            <div class="card-heading">
+              <p class="eyebrow">NEW PROFILE</p>
+              <h2>Create a demo account</h2>
+              <p>Your details stay in this browser only.</p>
+            </div>
             <form id="signup-form">
-              <label for="signup-name">Full name</label><input id="signup-name" type="text" autocomplete="name" placeholder="Your full name" required>
-              <label for="signup-email">Email address</label><input id="signup-email" type="email" autocomplete="email" placeholder="you@example.com" required>
-              <div class="form-grid"><div><label for="signup-city">City</label><input id="signup-city" type="text" placeholder="City" required></div><div><label for="signup-country">Country</label><select id="signup-country" required><option value="">Select country</option><option>Wales</option><option>Ghana</option><option>South Africa</option><option>Canada</option><option>United Kingdom</option></select></div></div>
-              <label for="signup-password">Create password</label><input id="signup-password" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required>
-              <button class="primary-button" type="submit">Create demo account <span>-></span></button><p id="signup-message" class="form-message" role="status"></p>
+              <label for="signup-name">Full name</label>
+              <input id="signup-name" type="text" autocomplete="name" placeholder="Your full name" required>
+              <label for="signup-email">Email address</label>
+              <input id="signup-email" type="email" autocomplete="email" placeholder="you@example.com" required>
+              <div class="form-grid">
+                <div>
+                  <label for="signup-city">City</label>
+                  <input id="signup-city" type="text" placeholder="City" required>
+                </div>
+                <div>
+                  <label for="signup-country">Country</label>
+                  <select id="signup-country" required>
+                    <option value="">Select country</option>
+                    <option>Wales</option>
+                    <option>Ghana</option>
+                    <option>South Africa</option>
+                    <option>Canada</option>
+                    <option>United Kingdom</option>
+                  </select>
+                </div>
+              </div>
+              <label for="signup-password">Create password</label>
+              <input id="signup-password" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required>
+              <button class="primary-button" type="submit">Create demo account <span>-></span></button>
+              <p id="signup-message" class="form-message" role="status"></p>
             </form>
             <p class="sandbox-note">Demo accounts do not represent real financial accounts or services.</p>
           </div>
@@ -72,23 +106,140 @@
       </section>
 
       <section id="dashboard" class="dashboard hidden">
-        <div class="dashboard-head"><div><p class="eyebrow">PERSONAL OVERVIEW</p><h1>Good morning, <span id="first-name">there</span>.</h1><p class="muted">Here is your financial picture at a glance.</p></div><div class="dashboard-actions"><div class="account-switcher"><label for="account-select">View account</label><select id="account-select" aria-label="Choose account"></select></div><button id="previous-account" class="square-button" aria-label="Previous account">&lt;</button><button id="next-account" class="square-button" aria-label="Next account">&gt;</button><button id="autoplay-toggle" class="outline-button" aria-pressed="true">Pause rotation</button><button id="sign-out" class="outline-button">Sign out</button></div></div>
+        <div class="dashboard-head">
+          <div>
+            <p class="eyebrow">PERSONAL OVERVIEW</p>
+            <h1>Good morning, <span id="first-name">there</span>.</h1>
+            <p class="muted">Here is your financial picture at a glance.</p>
+          </div>
+          <div class="dashboard-actions">
+            <div class="account-switcher">
+              <label for="account-select">View account</label>
+              <select id="account-select" aria-label="Choose account"></select>
+            </div>
+            <button id="previous-account" class="square-button" aria-label="Previous account">&lt;</button>
+            <button id="next-account" class="square-button" aria-label="Next account">&gt;</button>
+            <button id="autoplay-toggle" class="outline-button" aria-pressed="true">Pause rotation</button>
+            <button id="sign-out" class="outline-button">Sign out</button>
+          </div>
+        </div>
         <div class="dashboard-grid">
           <aside class="profile-sidebar">
-            <div class="avatar" id="avatar">CB</div><h2 id="profile-name">Profile</h2><p class="muted" id="profile-location">Location</p><div class="profile-rule"></div><dl class="profile-details"><div><dt>Account number</dt><dd id="account-number">--</dd></div><div><dt>Email</dt><dd id="profile-email">--</dd></div><div><dt>Date of birth</dt><dd id="profile-dob">--</dd></div></dl><button class="download-button" id="install-app">Install app <span>+</span></button>
+            <div class="avatar" id="avatar">CB</div>
+            <h2 id="profile-name">Profile</h2>
+            <p class="muted" id="profile-location">Location</p>
+            <div class="profile-rule"></div>
+            <dl class="profile-details">
+              <div><dt>Account number</dt><dd id="account-number">--</dd></div>
+              <div><dt>Email</dt><dd id="profile-email">--</dd></div>
+              <div><dt>Date of birth</dt><dd id="profile-dob">--</dd></div>
+            </dl>
+            <button class="download-button" id="install-app">Install app <span>+</span></button>
           </aside>
           <div class="content-column">
-            <div class="balance-card"><div><p class="eyebrow light">AVAILABLE BALANCE</p><div class="balance" id="balance">$0.00</div><p class="balance-caption" id="balance-caption">Ready to spend</p></div><div class="balance-art" aria-hidden="true"><span></span><span></span><span></span></div></div>
-            <div class="stats-row"><div class="stat-card"><span>Deposited</span><strong id="deposited">$0.00</strong><small id="deposit-date">To date</small></div><div class="stat-card"><span>Withdrawn</span><strong id="withdrawn">$0.00</strong><small>Previous activity</small></div><div class="stat-card"><span>Account status</span><strong class="status-pill">Active</strong><small>Verified demo profile</small></div></div>
-            <div class="review-card"><div><p class="eyebrow">ACCOUNT REVIEW</p><h2>Request a status review</h2><p class="muted">Submit a demo request and follow its processing timeline.</p></div><div class="review-form"><label for="review-type">Review type</label><select id="review-type"><option>Account verification</option><option>Statement eligibility</option><option>Profile information update</option></select><button class="primary-button review-submit" id="review-submit" type="button">Submit review request <span>-></span></button></div><div id="review-status" class="review-status" aria-live="polite"><span class="status-dot"></span><span>No review request submitted</span></div></div>
-            <div class="money-card"><div class="section-heading money-heading"><div><p class="eyebrow">MONEY MOVEMENT</p><h2>Deposit or send money</h2><p class="muted">Demo processing only. No real payment is made.</p></div><span class="sandbox-badge">SANDBOX</span></div><div class="money-tabs" role="tablist" aria-label="Money movement"><button class="money-tab active" id="deposit-tab" role="tab" aria-selected="true">Deposit</button><button class="money-tab" id="send-tab" role="tab" aria-selected="false">Send money</button></div><div id="deposit-panel" class="money-panel" role="tabpanel"><div class="form-grid"><div><label for="deposit-amount">Amount</label><input id="deposit-amount" type="number" min="1" step="0.01" placeholder="0.00"></div><div><label for="deposit-method">Payment plan</label><select id="deposit-method"><option>Postepay demo card</option><option>Bank transfer simulation</option></select></div></div><label for="deposit-card">Postepay card number</label><input id="deposit-card" inputmode="numeric" autocomplete="off" placeholder="Enter 12 to 19 digits" maxlength="19"><button class="primary-button money-submit" id="deposit-submit" type="button">Process demo deposit <span>-></span></button></div><div id="send-panel" class="money-panel hidden" role="tabpanel"><div class="form-grid"><div><label for="send-amount">Amount</label><input id="send-amount" type="number" min="1" step="0.01" placeholder="0.00"></div><div><label for="send-recipient">Recipient</label><input id="send-recipient" type="text" placeholder="Recipient name or email"></div></div><button class="primary-button money-submit" id="send-submit" type="button">Process demo transfer <span>-></span></button></div><div id="money-status" class="money-status" aria-live="polite">Ready for a simulated transaction.</div></div>
-            <div class="activity-section"><div class="section-heading"><div><p class="eyebrow">RECENT ACTIVITY</p><h2>Transactions</h2></div><button class="text-button" id="statement-button">View statement <span>-></span></button></div><div id="transactions" class="transaction-list"></div></div>
-            <div class="card-details-section"><div><p class="eyebrow">PAYMENT DETAILS</p><h2>Linked card</h2><p class="muted">Sensitive fields are masked in this demo.</p></div><div class="masked-card"><div class="card-chip"></div><span class="card-number">5333 17•• •••• 3046</span><div class="card-footer"><span>DEMO CARD</span><span id="card-holder">ACCOUNT HOLDER</span></div></div><div class="bank-meta"><div><span>IBAN</span><strong>IT21 **** **** **** 79253</strong></div><div><span>BIC / SWIFT</span><strong>PPAYITR1XXX</strong></div><div><span>Beneficiary</span><strong>Demo account holder</strong></div></div></div>
+            <div class="balance-card">
+              <div>
+                <p class="eyebrow light">AVAILABLE BALANCE</p>
+                <div class="balance" id="balance">$0.00</div>
+                <p class="balance-caption" id="balance-caption">Ready to spend</p>
+              </div>
+              <div class="balance-art" aria-hidden="true"><span></span><span></span><span></span></div>
+            </div>
+            <div class="stats-row">
+              <div class="stat-card"><span>Deposited</span><strong id="deposited">$0.00</strong><small id="deposit-date">To date</small></div>
+              <div class="stat-card"><span>Withdrawn</span><strong id="withdrawn">$0.00</strong><small>Previous activity</small></div>
+              <div class="stat-card"><span>Account status</span><strong class="status-pill">Active</strong><small>Verified demo profile</small></div>
+            </div>
+            <div class="review-card">
+              <div>
+                <p class="eyebrow">ACCOUNT REVIEW</p>
+                <h2>Request a status review</h2>
+                <p class="muted">Submit a demo request and follow its processing timeline.</p>
+              </div>
+              <div class="review-form">
+                <label for="review-type">Review type</label>
+                <select id="review-type">
+                  <option>Account verification</option>
+                  <option>Statement eligibility</option>
+                  <option>Profile information update</option>
+                </select>
+                <button class="primary-button review-submit" id="review-submit" type="button">Submit review request <span>-></span></button>
+              </div>
+              <div id="review-status" class="review-status" aria-live="polite">
+                <span class="status-dot"></span><span>No review request submitted</span>
+              </div>
+            </div>
+            <div class="money-card">
+              <div class="section-heading money-heading">
+                <div>
+                  <p class="eyebrow">MONEY MOVEMENT</p>
+                  <h2>Deposit or send money</h2>
+                  <p class="muted">Demo processing only. No real payment is made.</p>
+                </div>
+                <span class="sandbox-badge">SANDBOX</span>
+              </div>
+              <div class="money-tabs" role="tablist" aria-label="Money movement">
+                <button class="money-tab active" id="deposit-tab" role="tab" aria-selected="true">Deposit</button>
+                <button class="money-tab" id="send-tab" role="tab" aria-selected="false">Send money</button>
+              </div>
+              <div id="deposit-panel" class="money-panel" role="tabpanel">
+                <div class="form-grid">
+                  <div><label for="deposit-amount">Amount</label><input id="deposit-amount" type="number" min="1" step="0.01" placeholder="0.00"></div>
+                  <div><label for="deposit-method">Payment plan</label>
+                    <select id="deposit-method">
+                      <option>Postepay demo card</option>
+                      <option>Bank transfer simulation</option>
+                    </select>
+                  </div>
+                </div>
+                <label for="deposit-card">Postepay card number</label>
+                <input id="deposit-card" inputmode="numeric" autocomplete="off" placeholder="Enter 12 to 19 digits" maxlength="19">
+                <button class="primary-button money-submit" id="deposit-submit" type="button">Process demo deposit <span>-></span></button>
+              </div>
+              <div id="send-panel" class="money-panel hidden" role="tabpanel">
+                <div class="form-grid">
+                  <div><label for="send-amount">Amount</label><input id="send-amount" type="number" min="1" step="0.01" placeholder="0.00"></div>
+                  <div><label for="send-recipient">Recipient</label><input id="send-recipient" type="text" placeholder="Recipient name or email"></div>
+                </div>
+                <button class="primary-button money-submit" id="send-submit" type="button">Process demo transfer <span>-></span></button>
+              </div>
+              <div id="money-status" class="money-status" aria-live="polite">Ready for a simulated transaction.</div>
+            </div>
+            <div class="activity-section">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">RECENT ACTIVITY</p>
+                  <h2>Transactions</h2>
+                </div>
+                <button class="text-button" id="statement-button">View statement <span>-></span></button>
+              </div>
+              <div id="transactions" class="transaction-list"></div>
+            </div>
+            <div class="card-details-section">
+              <div>
+                <p class="eyebrow">PAYMENT DETAILS</p>
+                <h2>Linked card</h2>
+                <p class="muted">Sensitive fields are masked in this demo.</p>
+              </div>
+              <div class="masked-card">
+                <div class="card-chip"></div>
+                <span class="card-number">5333 17•• •••• 3046</span>
+                <div class="card-footer"><span>DEMO CARD</span><span id="card-holder">ACCOUNT HOLDER</span></div>
+              </div>
+              <div class="bank-meta">
+                <div><span>IBAN</span><strong>IT21 **** **** **** 79253</strong></div>
+                <div><span>BIC / SWIFT</span><strong>PPAYITR1XXX</strong></div>
+                <div><span>Beneficiary</span><strong>Demo account holder</strong></div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
     </main>
-    <footer><span>HARBORLINE DEMO</span><span>Built for exploration only. No real funds or financial services.</span></footer>
+    <footer>
+      <span>HARBORLINE DEMO</span>
+      <span>Built for exploration only. No real funds or financial services.</span>
+    </footer>
   </div>
   <div id="toast" class="toast" role="status"></div>
   <script type="module" src="/src/app.js"></script>

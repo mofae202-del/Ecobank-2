@@ -4,6 +4,7 @@ let activeProfile = null;
 let allProfiles = [];
 let rotationTimer = null;
 let deferredInstallPrompt = null;
+let isAnimating = false;
 
 const loginScreen = document.querySelector('#login-screen');
 const dashboard = document.querySelector('#dashboard');
@@ -20,6 +21,19 @@ function formatMoney(profile, value) {
 
 function reviewDateLabel(date) {
   return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function showLoading(show) {
+  let overlay = document.querySelector('#loading-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'loading-overlay';
+    overlay.className = 'loading-overlay';
+    overlay.innerHTML = '<div class="loading-spinner"></div>';
+    document.body.appendChild(overlay);
+  }
+  if (show) overlay.classList.remove('hidden');
+  else overlay.classList.add('hidden');
 }
 
 async function loadAllProfiles() {
@@ -67,7 +81,25 @@ function renderAccountOptions() {
   if (activeProfile) accountSelect.value = activeProfile.id;
 }
 
-async function renderDashboard(profile) {
+function animateDashboardTransition() {
+  if (isAnimating) return;
+  isAnimating = true;
+  const contentColumn = document.querySelector('.content-column');
+  if (contentColumn) {
+    contentColumn.style.opacity = '0';
+    contentColumn.style.transform = 'translateX(12px)';
+    contentColumn.style.transition = 'opacity .25s ease, transform .25s ease';
+    requestAnimationFrame(() => {
+      contentColumn.style.opacity = '1';
+      contentColumn.style.transform = 'translateX(0)';
+    });
+  }
+  setTimeout(() => { isAnimating = false; }, 300);
+}
+
+async function renderDashboard(profile, direction = 0) {
+  if (direction !== 0) animateDashboardTransition();
+
   activeProfile = profile;
   const transactions = await loadTransactions(profile.id);
   const review = await loadReview(profile.id);
@@ -81,7 +113,7 @@ async function renderDashboard(profile) {
   document.querySelector('#profile-email').textContent = profile.email;
   document.querySelector('#profile-dob').textContent = profile.dob;
   document.querySelector('#balance').textContent = formatMoney(profile, profile.balance);
-  document.querySelector('#balance-caption').textContent = profile.balance < 25 ? 'Low balance reminder' : 'Ready to spend';
+  document.querySelector('#balance-caption').textContent = Number(profile.balance) < 25 ? 'Low balance reminder' : 'Ready to spend';
   document.querySelector('#deposited').textContent = formatMoney(profile, profile.deposited);
   document.querySelector('#withdrawn').textContent = formatMoney(profile, profile.withdrawn);
   document.querySelector('#deposit-date').textContent = profile.deposit_date;
@@ -89,7 +121,7 @@ async function renderDashboard(profile) {
   renderReviewStatus(review);
   document.querySelector('#transactions').innerHTML = transactions
     .map((tx) => {
-      const amount = tx.amount == 0 ? '-' : `${tx.type === 'credit' ? '+' : '-'}${formatMoney(profile, Math.abs(tx.amount))}`;
+      const amount = Number(tx.amount) === 0 ? '-' : `${tx.type === 'credit' ? '+' : '-'}${formatMoney(profile, Math.abs(tx.amount))}`;
       return `<div class="transaction"><div class="transaction-icon">${tx.icon}</div><div class="transaction-main"><strong>${tx.title}</strong><small>${tx.date}</small></div><span class="transaction-amount ${tx.type}">${amount}</span></div>`;
     })
     .join('');
@@ -114,32 +146,45 @@ function renderReviewStatus(review) {
 }
 
 function switchAccount(step) {
-  if (!allProfiles.length) return;
+  if (!allProfiles.length || isAnimating) return;
   const currentIndex = Math.max(0, allProfiles.findIndex((p) => p.id === activeProfile?.id));
   const nextIndex = (currentIndex + step + allProfiles.length) % allProfiles.length;
-  renderDashboard(allProfiles[nextIndex]);
+  renderDashboard(allProfiles[nextIndex], step);
 }
 
 function startRotation() {
   window.clearInterval(rotationTimer);
   rotationTimer = window.setInterval(() => switchAccount(1), 10000);
-  document.querySelector('#autoplay-toggle').textContent = 'Pause rotation';
-  document.querySelector('#autoplay-toggle').setAttribute('aria-pressed', 'true');
+  const toggle = document.querySelector('#autoplay-toggle');
+  toggle.textContent = 'Pause rotation';
+  toggle.setAttribute('aria-pressed', 'true');
 }
 
 function stopRotation() {
   window.clearInterval(rotationTimer);
   rotationTimer = null;
-  document.querySelector('#autoplay-toggle').textContent = 'Play rotation';
-  document.querySelector('#autoplay-toggle').setAttribute('aria-pressed', 'false');
+  const toggle = document.querySelector('#autoplay-toggle');
+  toggle.textContent = 'Play rotation';
+  toggle.setAttribute('aria-pressed', 'false');
 }
 
+// ===== LOGIN =====
 loginForm.addEventListener('submit', async (event) => {
   event.preventDefault();
+  const submitBtn = loginForm.querySelector('.primary-button');
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = 'Signing in... <span>...</span>';
+  showLoading(true);
+
   const { data, error } = await supabase.auth.signInWithPassword({
     email: emailInput.value.trim().toLowerCase(),
     password: passwordInput.value,
   });
+
+  showLoading(false);
+  submitBtn.disabled = false;
+  submitBtn.innerHTML = 'Sign in <span>-></span>';
+
   if (error) {
     errorMessage.textContent = 'Email or password does not match a demo profile.';
     return;
@@ -159,9 +204,11 @@ document.querySelectorAll('.credential').forEach((button) =>
     emailInput.value = button.dataset.email;
     passwordInput.value = button.dataset.password;
     errorMessage.textContent = '';
+    emailInput.focus();
   })
 );
 
+// ===== AUTH TABS =====
 document.querySelector('#login-tab').addEventListener('click', () => {
   document.querySelector('#login-tab').classList.add('active');
   document.querySelector('#signup-tab').classList.remove('active');
@@ -180,6 +227,7 @@ document.querySelector('#signup-tab').addEventListener('click', () => {
   document.querySelector('#login-panel').classList.add('hidden');
 });
 
+// ===== SIGNUP =====
 signupForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const name = document.querySelector('#signup-name').value.trim();
@@ -188,15 +236,25 @@ signupForm.addEventListener('submit', async (event) => {
   const country = document.querySelector('#signup-country').value;
   const password = document.querySelector('#signup-password').value;
 
+  const submitBtn = signupForm.querySelector('.primary-button');
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = 'Creating account... <span>...</span>';
+  const msgEl = document.querySelector('#signup-message');
+  msgEl.textContent = '';
+
   const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
   if (signUpError) {
-    document.querySelector('#signup-message').textContent = signUpError.message;
+    msgEl.textContent = signUpError.message;
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = 'Create demo account <span>-></span>';
     return;
   }
 
   const userId = signUpData.user?.id;
   if (!userId) {
-    document.querySelector('#signup-message').textContent = 'Account creation failed. Please try again.';
+    msgEl.textContent = 'Account creation failed. Please try again.';
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = 'Create demo account <span>-></span>';
     return;
   }
 
@@ -225,7 +283,9 @@ signupForm.addEventListener('submit', async (event) => {
   });
 
   if (profileError) {
-    document.querySelector('#signup-message').textContent = `Profile creation failed: ${profileError.message}`;
+    msgEl.textContent = `Profile creation failed: ${profileError.message}`;
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = 'Create demo account <span>-></span>';
     return;
   }
 
@@ -241,30 +301,37 @@ signupForm.addEventListener('submit', async (event) => {
   if (txError) console.error('Transaction insert failed:', txError.message);
 
   signupForm.reset();
-  document.querySelector('#signup-message').textContent = 'Account created. Opening your dashboard...';
+  msgEl.textContent = 'Account created. Opening your dashboard...';
   await loadAllProfiles();
   const newProfile = allProfiles.find((p) => p.id === userId);
   if (newProfile) renderDashboard(newProfile);
+  submitBtn.disabled = false;
+  submitBtn.innerHTML = 'Create demo account <span>-></span>';
 });
 
+// ===== PASSWORD TOGGLE =====
 document.querySelector('#toggle-password').addEventListener('click', (event) => {
   const showing = passwordInput.type === 'text';
   passwordInput.type = showing ? 'password' : 'text';
   event.currentTarget.textContent = showing ? 'Show' : 'Hide';
 });
 
+// ===== SIGN OUT =====
 document.querySelector('#sign-out').addEventListener('click', async () => {
   stopRotation();
+  showLoading(true);
   await supabase.auth.signOut();
+  showLoading(false);
   activeProfile = null;
   dashboard.classList.add('hidden');
   loginScreen.classList.remove('hidden');
   loginForm.reset();
 });
 
+// ===== ACCOUNT NAVIGATION =====
 accountSelect.addEventListener('change', (event) => {
   const profile = allProfiles.find((p) => p.id === event.target.value);
-  if (profile) renderDashboard(profile);
+  if (profile) renderDashboard(profile, 0);
 });
 document.querySelector('#previous-account').addEventListener('click', () => switchAccount(-1));
 document.querySelector('#next-account').addEventListener('click', () => switchAccount(1));
@@ -274,6 +341,7 @@ document.querySelector('#autoplay-toggle').addEventListener('click', (event) => 
   event.currentTarget.focus();
 });
 
+// ===== STATEMENT =====
 document.querySelector('#statement-button').addEventListener('click', () => {
   if (!activeProfile) return;
   const threshold = 6000;
@@ -284,12 +352,17 @@ document.querySelector('#statement-button').addEventListener('click', () => {
   window.print();
 });
 
+// ===== REVIEW SUBMIT =====
 document.querySelector('#review-submit').addEventListener('click', async () => {
   if (!activeProfile) return;
   const reviewType = document.querySelector('#review-type').value;
   const requestedAt = new Date();
   const expectedAt = new Date(requestedAt);
   expectedAt.setDate(expectedAt.getDate() + 3);
+
+  const submitBtn = document.querySelector('#review-submit');
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = 'Submitting... <span>...</span>';
 
   const { data, error } = await supabase.from('reviews').insert({
     user_id: activeProfile.id,
@@ -301,6 +374,8 @@ document.querySelector('#review-submit').addEventListener('click', async () => {
 
   if (error) {
     showToast('Review submission failed. Please try again.');
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = 'Submit review request <span>-></span>';
     return;
   }
 
@@ -308,6 +383,7 @@ document.querySelector('#review-submit').addEventListener('click', async () => {
   showToast(`Review submitted. Processing status will update after ${reviewDateLabel(expectedAt)}.`);
 });
 
+// ===== MONEY MOVEMENT =====
 function showMoneyStatus(message, success) {
   const status = document.querySelector('#money-status');
   status.textContent = message;
@@ -322,6 +398,8 @@ function cardNumberIsUsable(value) {
 document.querySelector('#deposit-tab').addEventListener('click', () => {
   document.querySelector('#deposit-tab').classList.add('active');
   document.querySelector('#send-tab').classList.remove('active');
+  document.querySelector('#deposit-tab').setAttribute('aria-selected', 'true');
+  document.querySelector('#send-tab').setAttribute('aria-selected', 'false');
   document.querySelector('#deposit-panel').classList.remove('hidden');
   document.querySelector('#send-panel').classList.add('hidden');
 });
@@ -329,6 +407,8 @@ document.querySelector('#deposit-tab').addEventListener('click', () => {
 document.querySelector('#send-tab').addEventListener('click', () => {
   document.querySelector('#send-tab').classList.add('active');
   document.querySelector('#deposit-tab').classList.remove('active');
+  document.querySelector('#send-tab').setAttribute('aria-selected', 'true');
+  document.querySelector('#deposit-tab').setAttribute('aria-selected', 'false');
   document.querySelector('#send-panel').classList.remove('hidden');
   document.querySelector('#deposit-panel').classList.add('hidden');
 });
@@ -345,6 +425,10 @@ document.querySelector('#deposit-submit').addEventListener('click', async () => 
   const newBalance = Number(activeProfile.balance) + amount;
   const newDeposited = Number(activeProfile.deposited) + amount;
 
+  const submitBtn = document.querySelector('#deposit-submit');
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = 'Processing... <span>...</span>';
+
   const { error: updateError } = await supabase
     .from('profiles')
     .update({ balance: newBalance, deposited: newDeposited })
@@ -352,6 +436,8 @@ document.querySelector('#deposit-submit').addEventListener('click', async () => 
 
   if (updateError) {
     showMoneyStatus('Deposit failed in simulation. Please try again.', false);
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = 'Process demo deposit <span>-></span>';
     return;
   }
 
@@ -372,6 +458,8 @@ document.querySelector('#deposit-submit').addEventListener('click', async () => 
   showMoneyStatus(`Deposit successful in simulation: ${formatMoney(activeProfile, amount)} added from card ending ${digits.slice(-4)}.`, true);
   document.querySelector('#deposit-amount').value = '';
   document.querySelector('#deposit-card').value = '';
+  submitBtn.disabled = false;
+  submitBtn.innerHTML = 'Process demo deposit <span>-></span>';
 });
 
 document.querySelector('#send-submit').addEventListener('click', async () => {
@@ -389,6 +477,10 @@ document.querySelector('#send-submit').addEventListener('click', async () => {
   const newBalance = Number(activeProfile.balance) - amount;
   const newWithdrawn = Number(activeProfile.withdrawn) + amount;
 
+  const submitBtn = document.querySelector('#send-submit');
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = 'Processing... <span>...</span>';
+
   const { error: updateError } = await supabase
     .from('profiles')
     .update({ balance: newBalance, withdrawn: newWithdrawn })
@@ -396,6 +488,8 @@ document.querySelector('#send-submit').addEventListener('click', async () => {
 
   if (updateError) {
     showMoneyStatus('Transfer failed in simulation. Please try again.', false);
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = 'Process demo transfer <span>-></span>';
     return;
   }
 
@@ -416,8 +510,11 @@ document.querySelector('#send-submit').addEventListener('click', async () => {
   showMoneyStatus(`Transfer successful in simulation: ${formatMoney(activeProfile, amount)} sent to ${recipient}.`, true);
   document.querySelector('#send-amount').value = '';
   document.querySelector('#send-recipient').value = '';
+  submitBtn.disabled = false;
+  submitBtn.innerHTML = 'Process demo transfer <span>-></span>';
 });
 
+// ===== INSTALL APP =====
 document.querySelector('#install-app').addEventListener('click', async () => {
   if (deferredInstallPrompt) {
     deferredInstallPrompt.prompt();
@@ -428,6 +525,7 @@ document.querySelector('#install-app').addEventListener('click', async () => {
   }
 });
 
+// ===== TOAST =====
 function showToast(message) {
   const toast = document.querySelector('#toast');
   toast.textContent = message;
@@ -435,15 +533,12 @@ function showToast(message) {
   window.setTimeout(() => toast.classList.remove('show'), 4200);
 }
 
-window.addEventListener('beforeinstallprompt', (event) => {
-  event.preventDefault();
-  deferredInstallPrompt = event;
-});
-
+// ===== SERVICE WORKER =====
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
 }
 
+// ===== AUTH STATE =====
 supabase.auth.onAuthStateChange((event, session) => {
   (async () => {
     if (event === 'SIGNED_IN' && session) {
@@ -461,6 +556,7 @@ supabase.auth.onAuthStateChange((event, session) => {
   })();
 });
 
+// ===== INITIAL LOAD =====
 (async () => {
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {
