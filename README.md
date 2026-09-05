@@ -29,3 +29,8 @@ The browser's `localStorage` is used as a small demo database. It is intentional
 - Statement access button with the EUR 6,000 eligibility gate
 - Installable PWA shell with offline cache
 - Print-friendly browser statement flow when eligibility is met
+- Explicit account review requests with processing and expected approval dates
+
+## Native Java app
+
+The Android Java version is in [android-app](android-app). Open that folder in Android Studio with an Android SDK installed to build and run the native app. It includes the same seeded profiles, SQLite account database, signup flow, account switching, and local review-status processing.
