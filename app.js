@@ -62,6 +62,7 @@ function renderDashboard(account, accountKey = activeAccountKey) {
   document.querySelector('#withdrawn').textContent = formatMoney(account, account.withdrawn);
   document.querySelector('#deposit-date').textContent = account.depositDate;
   document.querySelector('#card-holder').textContent = account.name.toUpperCase();
+  renderReviewStatus(account);
   document.querySelector('#transactions').innerHTML = account.transactions.map((transaction) => {
     const amount = transaction.amount === 0 ? '-' : `${transaction.type === 'credit' ? '+' : '-'}${formatMoney(account, Math.abs(transaction.amount))}`;
     return `<div class="transaction"><div class="transaction-icon">${transaction.icon}</div><div class="transaction-main"><strong>${transaction.title}</strong><small>${transaction.date}</small></div><span class="transaction-amount ${transaction.type}">${amount}</span></div>`;
@@ -70,6 +71,26 @@ function renderDashboard(account, accountKey = activeAccountKey) {
   dashboard.classList.remove('hidden');
   startRotation();
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function reviewDateLabel(date) {
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function renderReviewStatus(account) {
+  const status = document.querySelector('#review-status');
+  const submit = document.querySelector('#review-submit');
+  if (!account.review) {
+    status.innerHTML = '<span class="status-dot"></span><span>No review request submitted</span>';
+    submit.disabled = false;
+    submit.innerHTML = 'Submit review request <span>-></span>';
+    return;
+  }
+  const requested = new Date(account.review.requestedAt);
+  const expected = new Date(account.review.expectedAt);
+  status.innerHTML = `<span class="status-dot processing-dot"></span><span><strong>${account.review.type}: Processing</strong><small>Requested ${reviewDateLabel(requested)}. Review and approval decision expected after ${reviewDateLabel(expected)}.</small></span>`;
+  submit.disabled = true;
+  submit.innerHTML = 'Review request processing <span>...</span>';
 }
 
 function switchAccount(step) {
@@ -184,6 +205,17 @@ document.querySelector('#statement-button').addEventListener('click', () => {
     return;
   }
   window.print();
+});
+
+document.querySelector('#review-submit').addEventListener('click', () => {
+  if (!activeAccount || activeAccount.review) return;
+  const requestedAt = new Date();
+  const expectedAt = new Date(requestedAt);
+  expectedAt.setDate(expectedAt.getDate() + 3);
+  activeAccount.review = { type: document.querySelector('#review-type').value, requestedAt: requestedAt.toISOString(), expectedAt: expectedAt.toISOString(), status: 'Processing' };
+  persistDatabase();
+  renderReviewStatus(activeAccount);
+  showToast(`Review submitted. Processing status will update after ${reviewDateLabel(expectedAt)}.`);
 });
 
 document.querySelector('#install-app').addEventListener('click', async () => {
