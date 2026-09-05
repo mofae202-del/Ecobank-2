@@ -21,7 +21,11 @@ const loginForm = document.querySelector('#login-form');
 const emailInput = document.querySelector('#email');
 const passwordInput = document.querySelector('#password');
 const errorMessage = document.querySelector('#login-error');
+const signupForm = document.querySelector('#signup-form');
+const accountSelect = document.querySelector('#account-select');
 let activeAccount = null;
+let activeAccountKey = null;
+let rotationTimer = null;
 let deferredInstallPrompt = null;
 
 function formatMoney(account, value) {
@@ -32,8 +36,19 @@ function persistDatabase() {
   localStorage.setItem(DEMO_DB_KEY, JSON.stringify(database));
 }
 
-function renderDashboard(account) {
+function accountKeys() {
+  return Object.keys(database);
+}
+
+function renderAccountOptions() {
+  accountSelect.innerHTML = accountKeys().map((key) => `<option value="${key}">${database[key].name} / ${database[key].currency}</option>`).join('');
+  if (activeAccountKey) accountSelect.value = activeAccountKey;
+}
+
+function renderDashboard(account, accountKey = activeAccountKey) {
   activeAccount = account;
+  activeAccountKey = accountKey;
+  renderAccountOptions();
   document.querySelector('#first-name').textContent = account.name.split(' ')[0];
   document.querySelector('#profile-name').textContent = account.name;
   document.querySelector('#profile-location').textContent = `${account.location} / ${account.country}`;
@@ -53,7 +68,30 @@ function renderDashboard(account) {
   }).join('');
   loginScreen.classList.add('hidden');
   dashboard.classList.remove('hidden');
+  startRotation();
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function switchAccount(step) {
+  const keys = accountKeys();
+  if (!keys.length) return;
+  const currentIndex = Math.max(0, keys.indexOf(activeAccountKey));
+  const nextIndex = (currentIndex + step + keys.length) % keys.length;
+  renderDashboard(database[keys[nextIndex]], keys[nextIndex]);
+}
+
+function startRotation() {
+  window.clearInterval(rotationTimer);
+  rotationTimer = window.setInterval(() => switchAccount(1), 10000);
+  document.querySelector('#autoplay-toggle').textContent = 'Pause rotation';
+  document.querySelector('#autoplay-toggle').setAttribute('aria-pressed', 'true');
+}
+
+function stopRotation() {
+  window.clearInterval(rotationTimer);
+  rotationTimer = null;
+  document.querySelector('#autoplay-toggle').textContent = 'Play rotation';
+  document.querySelector('#autoplay-toggle').setAttribute('aria-pressed', 'false');
 }
 
 loginForm.addEventListener('submit', (event) => {
@@ -74,6 +112,47 @@ document.querySelectorAll('.credential').forEach((button) => button.addEventList
   errorMessage.textContent = '';
 }));
 
+document.querySelector('#login-tab').addEventListener('click', () => {
+  document.querySelector('#login-tab').classList.add('active');
+  document.querySelector('#signup-tab').classList.remove('active');
+  document.querySelector('#login-tab').setAttribute('aria-selected', 'true');
+  document.querySelector('#signup-tab').setAttribute('aria-selected', 'false');
+  document.querySelector('#login-panel').classList.remove('hidden');
+  document.querySelector('#signup-panel').classList.add('hidden');
+});
+
+document.querySelector('#signup-tab').addEventListener('click', () => {
+  document.querySelector('#signup-tab').classList.add('active');
+  document.querySelector('#login-tab').classList.remove('active');
+  document.querySelector('#signup-tab').setAttribute('aria-selected', 'true');
+  document.querySelector('#login-tab').setAttribute('aria-selected', 'false');
+  document.querySelector('#signup-panel').classList.remove('hidden');
+  document.querySelector('#login-panel').classList.add('hidden');
+});
+
+signupForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const name = document.querySelector('#signup-name').value.trim();
+  const email = document.querySelector('#signup-email').value.trim().toLowerCase();
+  const city = document.querySelector('#signup-city').value.trim();
+  const country = document.querySelector('#signup-country').value;
+  const password = document.querySelector('#signup-password').value;
+  if (Object.values(database).some((account) => account.email.toLowerCase() === email)) {
+    document.querySelector('#signup-message').textContent = 'That email is already used by a demo profile.';
+    return;
+  }
+  const baseKey = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'new-profile';
+  let accountKey = baseKey;
+  let suffix = 2;
+  while (database[accountKey]) accountKey = `${baseKey}-${suffix++}`;
+  const initials = name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase();
+  database[accountKey] = { email, password, name, initials, location: city, country, dob: 'Not provided', currency: 'USD', symbol: '$', account: `HL-DEMO-${String(Date.now()).slice(-6)}`, balance: 0, deposited: 0, withdrawn: 0, depositDate: 'No deposits yet', transactions: [{ icon: 'i', title: 'Demo account created', date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }), amount: 0, type: 'neutral' }] };
+  persistDatabase();
+  signupForm.reset();
+  document.querySelector('#signup-message').textContent = 'Account created. Opening your dashboard...';
+  renderDashboard(database[accountKey], accountKey);
+});
+
 document.querySelector('#toggle-password').addEventListener('click', (event) => {
   const showing = passwordInput.type === 'text';
   passwordInput.type = showing ? 'password' : 'text';
@@ -82,9 +161,20 @@ document.querySelector('#toggle-password').addEventListener('click', (event) => 
 
 document.querySelector('#sign-out').addEventListener('click', () => {
   activeAccount = null;
+  activeAccountKey = null;
+  stopRotation();
   dashboard.classList.add('hidden');
   loginScreen.classList.remove('hidden');
   loginForm.reset();
+});
+
+accountSelect.addEventListener('change', (event) => renderDashboard(database[event.target.value], event.target.value));
+document.querySelector('#previous-account').addEventListener('click', () => switchAccount(-1));
+document.querySelector('#next-account').addEventListener('click', () => switchAccount(1));
+document.querySelector('#autoplay-toggle').addEventListener('click', (event) => {
+  if (rotationTimer) stopRotation();
+  else startRotation();
+  event.currentTarget.focus();
 });
 
 document.querySelector('#statement-button').addEventListener('click', () => {
