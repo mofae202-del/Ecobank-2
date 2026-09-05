@@ -36,6 +36,10 @@ function persistDatabase() {
   localStorage.setItem(DEMO_DB_KEY, JSON.stringify(database));
 }
 
+function notifyWebhook(event, account, details = {}) {
+  fetch('http://localhost:8787/webhooks/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-webhook-secret': 'harborline-demo-secret' }, body: JSON.stringify({ event, accountId: account.account, status: details.status || 'Processing', amount: details.amount, currency: account.currency, cardLast4: details.cardLast4, recipient: details.recipient }) }).catch(() => {});
+}
+
 function accountKeys() {
   return Object.keys(database);
 }
@@ -214,6 +218,7 @@ document.querySelector('#review-submit').addEventListener('click', () => {
   expectedAt.setDate(expectedAt.getDate() + 3);
   activeAccount.review = { type: document.querySelector('#review-type').value, requestedAt: requestedAt.toISOString(), expectedAt: expectedAt.toISOString(), status: 'Processing' };
   persistDatabase();
+  notifyWebhook('account.review.requested', activeAccount, { status: 'Processing' });
   renderReviewStatus(activeAccount);
   showToast(`Review submitted. Processing status will update after ${reviewDateLabel(expectedAt)}.`);
 });
@@ -256,6 +261,7 @@ document.querySelector('#deposit-submit').addEventListener('click', () => {
   activeAccount.deposited += amount;
   activeAccount.transactions.unshift({ icon: '+', title: `Postepay demo deposit (•••• ${digits.slice(-4)})`, date: reviewDateLabel(new Date()), amount, type: 'credit' });
   persistDatabase();
+  notifyWebhook('deposit.completed', activeAccount, { status: 'Succeeded', amount, cardLast4: digits.slice(-4) });
   renderDashboard(activeAccount, activeAccountKey);
   showMoneyStatus(`Deposit successful in simulation: ${formatMoney(activeAccount, amount)} added from card ending ${digits.slice(-4)}.`, true);
   document.querySelector('#deposit-amount').value = '';
@@ -278,6 +284,7 @@ document.querySelector('#send-submit').addEventListener('click', () => {
   activeAccount.withdrawn += amount;
   activeAccount.transactions.unshift({ icon: '-', title: `Demo transfer to ${recipient}`, date: reviewDateLabel(new Date()), amount: -amount, type: 'debit' });
   persistDatabase();
+  notifyWebhook('transfer.completed', activeAccount, { status: 'Succeeded', amount, recipient });
   renderDashboard(activeAccount, activeAccountKey);
   showMoneyStatus(`Transfer successful in simulation: ${formatMoney(activeAccount, amount)} sent to ${recipient}.`, true);
   document.querySelector('#send-amount').value = '';

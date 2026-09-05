@@ -31,6 +31,16 @@ The browser's `localStorage` is used as a small demo database. It is intentional
 - Print-friendly browser statement flow when eligibility is met
 - Explicit account review requests with processing and expected approval dates
 
+## Local demo webhook
+
+Run the optional receiver in a second terminal:
+
+```sh
+node webhook-server.js
+```
+
+It listens on `http://localhost:8787` and accepts masked demo events at `/webhooks/transactions`. The dashboard sends `account.review.requested`, `deposit.completed`, and `transfer.completed` events after local actions. Received events are written to `webhook-events.jsonl`, which is ignored from source control. This receiver is for local testing only and does not contact Postepay, Ecobank, or any payment network.
+
 ## Native Java app
 
 The Android Java version is in [android-app](android-app). Open that folder in Android Studio with an Android SDK installed to build and run the native app. It includes the same seeded profiles, SQLite account database, signup flow, account switching, and local review-status processing.
