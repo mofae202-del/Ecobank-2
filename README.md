@@ -12,6 +12,14 @@ python3 -m http.server 8000
 
 Open `http://localhost:8000` in a browser. The app can be installed from the browser menu or through the **Install app** control after the page is served over HTTP.
 
+The same commands are available through `package.json`:
+
+```sh
+npm run check
+npm run start:web
+npm run start:webhook
+```
+
 ## Demo sign-ins
 
 | Profile | Email | Demo password |
