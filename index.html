@@ -30,6 +30,8 @@
           <div class="feature-row"><span class="feature-icon">03</span><span>Installable on your device</span></div>
         </div>
         <div class="login-card">
+          <div class="auth-tabs" role="tablist" aria-label="Account access"><button class="auth-tab active" id="login-tab" role="tab" aria-selected="true" aria-controls="login-panel">Sign in</button><button class="auth-tab" id="signup-tab" role="tab" aria-selected="false" aria-controls="signup-panel">Create account</button></div>
+          <div id="login-panel" role="tabpanel" aria-labelledby="login-tab">
           <div class="card-heading"><p class="eyebrow">WELCOME BACK</p><h2>Sign in to your account</h2><p>Use one of the seeded demo profiles below.</p></div>
           <form id="login-form">
             <label for="email">Email address</label>
@@ -45,11 +47,23 @@
             <button class="credential" data-email="eva02amofa@gmail.com" data-password="Eva!4502026"><span><strong>Eva Amofa</strong><small>Personal account / EUR</small></span><b>Use profile</b></button>
           </div>
           <p class="sandbox-note">This is a fictional prototype. It is not affiliated with Ecobank and does not connect to banking networks.</p>
+          </div>
+          <div id="signup-panel" class="hidden" role="tabpanel" aria-labelledby="signup-tab">
+            <div class="card-heading"><p class="eyebrow">NEW PROFILE</p><h2>Create a demo account</h2><p>Your details stay in this browser only.</p></div>
+            <form id="signup-form">
+              <label for="signup-name">Full name</label><input id="signup-name" type="text" autocomplete="name" placeholder="Your full name" required>
+              <label for="signup-email">Email address</label><input id="signup-email" type="email" autocomplete="email" placeholder="you@example.com" required>
+              <div class="form-grid"><div><label for="signup-city">City</label><input id="signup-city" type="text" placeholder="City" required></div><div><label for="signup-country">Country</label><select id="signup-country" required><option value="">Select country</option><option>Wales</option><option>Ghana</option><option>South Africa</option><option>Canada</option><option>United Kingdom</option></select></div></div>
+              <label for="signup-password">Create password</label><input id="signup-password" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required>
+              <button class="primary-button" type="submit">Create demo account <span>-></span></button><p id="signup-message" class="form-message" role="status"></p>
+            </form>
+            <p class="sandbox-note">Demo accounts do not represent real financial accounts or services.</p>
+          </div>
         </div>
       </section>
 
       <section id="dashboard" class="dashboard hidden">
-        <div class="dashboard-head"><div><p class="eyebrow">PERSONAL OVERVIEW</p><h1>Good morning, <span id="first-name">there</span>.</h1><p class="muted">Here is your financial picture at a glance.</p></div><button id="sign-out" class="outline-button">Sign out</button></div>
+        <div class="dashboard-head"><div><p class="eyebrow">PERSONAL OVERVIEW</p><h1>Good morning, <span id="first-name">there</span>.</h1><p class="muted">Here is your financial picture at a glance.</p></div><div class="dashboard-actions"><div class="account-switcher"><label for="account-select">View account</label><select id="account-select" aria-label="Choose account"></select></div><button id="previous-account" class="square-button" aria-label="Previous account">&lt;</button><button id="next-account" class="square-button" aria-label="Next account">&gt;</button><button id="autoplay-toggle" class="outline-button" aria-pressed="true">Pause rotation</button><button id="sign-out" class="outline-button">Sign out</button></div></div>
         <div class="dashboard-grid">
           <aside class="profile-sidebar">
             <div class="avatar" id="avatar">CB</div><h2 id="profile-name">Profile</h2><p class="muted" id="profile-location">Location</p><div class="profile-rule"></div><dl class="profile-details"><div><dt>Account number</dt><dd id="account-number">--</dd></div><div><dt>Email</dt><dd id="profile-email">--</dd></div><div><dt>Date of birth</dt><dd id="profile-dob">--</dd></div></dl><button class="download-button" id="install-app">Install app <span>+</span></button>
