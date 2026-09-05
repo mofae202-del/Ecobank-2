@@ -33,6 +33,15 @@ const server = http.createServer(async (request, response) => {
     sendJson(response, 200, { ok: true, service: 'harborline-demo-webhook' });
     return;
   }
+  if (request.method === 'GET' && request.url === '/webhooks/events') {
+    if (request.headers['x-webhook-secret'] !== SECRET) {
+      sendJson(response, 401, { error: 'Invalid webhook secret' });
+      return;
+    }
+    const lines = fs.readFileSync(EVENTS_FILE, 'utf8').split('\n').filter(Boolean).slice(-100).reverse().map((line) => JSON.parse(line));
+    sendJson(response, 200, { events: lines });
+    return;
+  }
   if (request.method !== 'POST' || request.url !== '/webhooks/transactions') {
     sendJson(response, 404, { error: 'Not found' });
     return;
