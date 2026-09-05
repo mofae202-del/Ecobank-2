@@ -5,6 +5,7 @@ const path = require('path');
 const PORT = Number(process.env.WEBHOOK_PORT || 8787);
 const SECRET = process.env.DEMO_WEBHOOK_SECRET || 'harborline-demo-secret';
 const EVENTS_FILE = path.join(__dirname, 'webhook-events.jsonl');
+fs.closeSync(fs.openSync(EVENTS_FILE, 'a'));
 
 function sendJson(response, status, body) {
   response.writeHead(status, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': 'http://localhost:8000', 'Access-Control-Allow-Headers': 'content-type,x-webhook-secret' });
