@@ -12,6 +12,8 @@ python3 -m http.server 8000
 
 Open `http://localhost:8000` in a browser. The app can be installed from the browser menu or through the **Install app** control after the page is served over HTTP.
 
+The demo operations console is available at `http://localhost:8000/admin.html`. It shows locally stored demo accounts and the authenticated masked webhook event feed.
+
 The same commands are available through `package.json`:
 
 ```sh
@@ -19,6 +21,14 @@ npm run check
 npm run start:web
 npm run start:webhook
 ```
+
+To run both services with Docker:
+
+```sh
+docker compose up
+```
+
+This exposes the web app on port `8000` and the webhook receiver on port `8787`.
 
 ## Demo sign-ins
 

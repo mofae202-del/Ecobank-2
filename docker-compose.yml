@@ -1,0 +1,23 @@
+services:
+  web:
+    image: python:3.12-slim
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace:ro
+    command: python3 -m http.server 8000 --bind 0.0.0.0
+    ports:
+      - "8000:8000"
+  webhook:
+    image: node:22-alpine
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+      - webhook-events:/workspace/webhook-events.jsonl
+    command: node webhook-server.js
+    environment:
+      WEBHOOK_PORT: 8787
+      DEMO_WEBHOOK_SECRET: harborline-demo-secret
+    ports:
+      - "8787:8787"
+volumes:
+  webhook-events:
