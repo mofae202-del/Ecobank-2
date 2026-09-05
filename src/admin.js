@@ -1,13 +1,27 @@
-const database = JSON.parse(localStorage.getItem('harborline-demo-db') || '{}');
+import { supabase } from './supabaseClient.js';
+
 const eventMessage = document.querySelector('#event-message');
 
-function money(account, value) { return `${account.currency === 'EUR' ? 'EUR ' : '$'}${Number(value).toFixed(2)}`; }
-function renderAccounts() {
-  const accounts = Object.values(database);
-  document.querySelector('#account-count').textContent = accounts.length;
-  document.querySelector('#review-count').textContent = accounts.filter((account) => account.review).length;
-  document.querySelector('#accounts-table').innerHTML = `<table class="admin-table"><thead><tr><th>Name</th><th>Account</th><th>Balance</th><th>Status</th></tr></thead><tbody>${accounts.map((account) => `<tr><td>${account.name}<br><small>${account.email}</small></td><td>${account.account}</td><td>${money(account, account.balance)}</td><td class="${account.review ? 'pending' : 'ok'}">${account.review ? 'Review processing' : 'Active'}</td></tr>`).join('')}</tbody></table>`;
+function money(profile, value) {
+  return `${profile.currency === 'EUR' ? 'EUR ' : '$'}${Number(value).toFixed(2)}`;
 }
+
+async function renderAccounts() {
+  const { data: profiles, error } = await supabase.from('profiles').select('*');
+  if (error) {
+    document.querySelector('#accounts-table').innerHTML = `<p class="admin-note">Unable to load accounts: ${error.message}</p>`;
+    document.querySelector('#account-count').textContent = '0';
+    document.querySelector('#review-count').textContent = '0';
+    return;
+  }
+
+  const { data: reviews } = await supabase.from('reviews').select('user_id');
+
+  document.querySelector('#account-count').textContent = profiles.length;
+  document.querySelector('#review-count').textContent = reviews ? reviews.length : 0;
+  document.querySelector('#accounts-table').innerHTML = `<table class="admin-table"><thead><tr><th>Name</th><th>Account</th><th>Balance</th><th>Status</th></tr></thead><tbody>${profiles.map((account) => `<tr><td>${account.name}<br><small>${account.email}</small></td><td>${account.account_number}</td><td>${money(account, account.balance)}</td><td class="ok">Active</td></tr>`).join('')}</tbody></table>`;
+}
+
 async function renderEvents() {
   const secret = document.querySelector('#admin-secret').value;
   try {
@@ -22,6 +36,7 @@ async function renderEvents() {
     document.querySelector('#event-count').textContent = '0';
   }
 }
+
 renderAccounts();
 renderEvents();
 document.querySelector('#refresh-events').addEventListener('click', renderEvents);

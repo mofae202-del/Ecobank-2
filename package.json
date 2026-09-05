@@ -2,11 +2,19 @@
   "name": "harborline-demo-banking",
   "version": "1.0.0",
   "private": true,
-  "description": "Fictional sandbox banking web app and local webhook receiver",
+  "description": "Fictional sandbox banking web app with Supabase backend",
+  "type": "module",
   "scripts": {
-    "start:web": "python3 -m http.server 8000",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "start:webhook": "node webhook-server.js",
-    "check": "node --check app.js && node --check webhook-server.js",
-    "check:android": "gradle -p android-app tasks --no-daemon"
+    "check": "node --check webhook-server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
   }
 }

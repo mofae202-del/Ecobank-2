@@ -4,21 +4,25 @@ Harborline is a fictional banking dashboard prototype inspired by the clarity of
 
 ## Run locally
 
-Because the service worker requires HTTP, start a small local server from this folder:
-
 ```sh
-python3 -m http.server 8000
+npm install
+npm run dev
 ```
 
-Open `http://localhost:8000` in a browser. The app can be installed from the browser menu or through the **Install app** control after the page is served over HTTP.
+Open the URL shown in your terminal (default `http://localhost:5173`).
 
-The demo operations console is available at `http://localhost:8000/admin.html`. It shows locally stored demo accounts and the authenticated masked webhook event feed.
-
-The same commands are available through `package.json`:
+To create a production build:
 
 ```sh
-npm run check
-npm run start:web
+npm run build
+npm run preview
+```
+
+The demo operations console is available at `/admin.html`. It shows demo accounts stored in Supabase and the authenticated masked webhook event feed.
+
+The optional webhook receiver:
+
+```sh
 npm run start:webhook
 ```
 
@@ -37,17 +41,19 @@ This exposes the web app on port `8000` and the webhook receiver on port `8787`.
 | Caskey Boney | `cappy1232025@outlook.com` | `Caskey!2489` |
 | Eva Amofa | `eva02amofa@gmail.com` | `Eva!4502026` |
 
-The browser's `localStorage` is used as a small demo database. It is intentionally not a production backend or secure credential store. The payment information shown in the dashboard is masked and labelled as demo data.
+Accounts and transactions are stored in a Supabase database with row-level security. Each authenticated user can only access their own profile data. The payment information shown in the dashboard is masked and labelled as demo data.
 
 ## Included
 
 - Responsive login and account dashboard
 - Two seeded account profiles with balances and transaction summaries
-- Local demo persistence through `localStorage`
+- Supabase email/password authentication with sign-up and sign-in
+- Persistent data through Supabase (profiles, transactions, reviews)
 - Statement access button with the EUR 6,000 eligibility gate
 - Installable PWA shell with offline cache
 - Print-friendly browser statement flow when eligibility is met
 - Explicit account review requests with processing and expected approval dates
+- Admin operations console reading from Supabase
 
 ## Local demo webhook
 
