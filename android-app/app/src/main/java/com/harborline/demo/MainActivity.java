@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
     private SharedPreferences reviewStore;
     private Handler rotationHandler = new Handler();
     private boolean rotating = true;
-    private final Runnable rotation = () -> { if (rotating && accounts != null && accounts.size() > 1) { activeIndex = (activeIndex + 1) % accounts.size(); accountSpinner.setSelection(activeIndex); showAccount(accounts.get(activeIndex)); } rotationHandler.postDelayed(rotation, 10000); };
+    private final Runnable rotation = new Runnable() { @Override public void run() { if (rotating && accounts != null && accounts.size() > 1) { activeIndex = (activeIndex + 1) % accounts.size(); accountSpinner.setSelection(activeIndex); showAccount(accounts.get(activeIndex)); } rotationHandler.postDelayed(this, 10000); } };
 
     @Override public void onCreate(Bundle state) { super.onCreate(state); database = new DatabaseHelper(this); reviewStore = getSharedPreferences("review_status", MODE_PRIVATE); showLogin(); }
     @Override protected void onDestroy() { rotationHandler.removeCallbacks(rotation); database.close(); super.onDestroy(); }
