@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a4f48">
+  <meta name="description" content="Harborline demo banking dashboard">
+  <title>Harborline | Demo banking</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Harborline home">
+        <span class="brand-mark">H</span>
+        <span><strong>HARBORLINE</strong><small>DEMO BANKING</small></span>
+      </a>
+      <div class="topbar-note"><span class="status-dot"></span> Sandbox mode</div>
+    </header>
+
+    <main>
+      <section id="login-screen" class="login-layout">
+        <div class="intro-panel">
+          <p class="eyebrow">PRIVATE BETA / 2026</p>
+          <h1>Money, made<br><em>clear.</em></h1>
+          <p class="intro-copy">A calm, useful preview of everyday banking. Check balances, review activity, and download a sample statement from one secure workspace.</p>
+          <div class="feature-row"><span class="feature-icon">01</span><span>Simple account snapshots</span></div>
+          <div class="feature-row"><span class="feature-icon">02</span><span>Readable transaction history</span></div>
+          <div class="feature-row"><span class="feature-icon">03</span><span>Installable on your device</span></div>
+        </div>
+        <div class="login-card">
+          <div class="card-heading"><p class="eyebrow">WELCOME BACK</p><h2>Sign in to your account</h2><p>Use one of the seeded demo profiles below.</p></div>
+          <form id="login-form">
+            <label for="email">Email address</label>
+            <input id="email" type="email" autocomplete="username" placeholder="you@example.com" required>
+            <label for="password">Password</label>
+            <div class="password-wrap"><input id="password" type="password" autocomplete="current-password" placeholder="Enter demo password" required><button type="button" class="icon-button" id="toggle-password" aria-label="Show password">Show</button></div>
+            <button class="primary-button" type="submit">Sign in <span>-></span></button>
+            <p id="login-error" class="form-error" role="alert"></p>
+          </form>
+          <div class="demo-credentials">
+            <div class="section-label">DEMO CREDENTIALS</div>
+            <button class="credential" data-email="cappy1232025@outlook.com" data-password="Caskey!2489"><span><strong>Caskey Boney</strong><small>Personal account / USD</small></span><b>Use profile</b></button>
+            <button class="credential" data-email="eva02amofa@gmail.com" data-password="Eva!4502026"><span><strong>Eva Amofa</strong><small>Personal account / EUR</small></span><b>Use profile</b></button>
+          </div>
+          <p class="sandbox-note">This is a fictional prototype. It is not affiliated with Ecobank and does not connect to banking networks.</p>
+        </div>
+      </section>
+
+      <section id="dashboard" class="dashboard hidden">
+        <div class="dashboard-head"><div><p class="eyebrow">PERSONAL OVERVIEW</p><h1>Good morning, <span id="first-name">there</span>.</h1><p class="muted">Here is your financial picture at a glance.</p></div><button id="sign-out" class="outline-button">Sign out</button></div>
+        <div class="dashboard-grid">
+          <aside class="profile-sidebar">
+            <div class="avatar" id="avatar">CB</div><h2 id="profile-name">Profile</h2><p class="muted" id="profile-location">Location</p><div class="profile-rule"></div><dl class="profile-details"><div><dt>Account number</dt><dd id="account-number">--</dd></div><div><dt>Email</dt><dd id="profile-email">--</dd></div><div><dt>Date of birth</dt><dd id="profile-dob">--</dd></div></dl><button class="download-button" id="install-app">Install app <span>+</span></button>
+          </aside>
+          <div class="content-column">
+            <div class="balance-card"><div><p class="eyebrow light">AVAILABLE BALANCE</p><div class="balance" id="balance">$0.00</div><p class="balance-caption" id="balance-caption">Ready to spend</p></div><div class="balance-art" aria-hidden="true"><span></span><span></span><span></span></div></div>
+            <div class="stats-row"><div class="stat-card"><span>Deposited</span><strong id="deposited">$0.00</strong><small id="deposit-date">To date</small></div><div class="stat-card"><span>Withdrawn</span><strong id="withdrawn">$0.00</strong><small>Previous activity</small></div><div class="stat-card"><span>Account status</span><strong class="status-pill">Active</strong><small>Verified demo profile</small></div></div>
+            <div class="activity-section"><div class="section-heading"><div><p class="eyebrow">RECENT ACTIVITY</p><h2>Transactions</h2></div><button class="text-button" id="statement-button">View statement <span>-></span></button></div><div id="transactions" class="transaction-list"></div></div>
+            <div class="card-details-section"><div><p class="eyebrow">PAYMENT DETAILS</p><h2>Linked card</h2><p class="muted">Sensitive fields are masked in this demo.</p></div><div class="masked-card"><div class="card-chip"></div><span class="card-number">5333 17•• •••• 3046</span><div class="card-footer"><span>DEMO CARD</span><span id="card-holder">ACCOUNT HOLDER</span></div></div><div class="bank-meta"><div><span>IBAN</span><strong>IT21 **** **** **** 79253</strong></div><div><span>BIC / SWIFT</span><strong>PPAYITR1XXX</strong></div><div><span>Beneficiary</span><strong>Demo account holder</strong></div></div></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer><span>HARBORLINE DEMO</span><span>Built for exploration only. No real funds or financial services.</span></footer>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
