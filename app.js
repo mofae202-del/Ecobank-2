@@ -218,6 +218,72 @@ document.querySelector('#review-submit').addEventListener('click', () => {
   showToast(`Review submitted. Processing status will update after ${reviewDateLabel(expectedAt)}.`);
 });
 
+function showMoneyStatus(message, success) {
+  const status = document.querySelector('#money-status');
+  status.textContent = message;
+  status.className = `money-status ${success ? 'money-success' : 'money-failure'}`;
+}
+
+function cardNumberIsUsable(value) {
+  const digits = value.replace(/\D/g, '');
+  return digits.length >= 12 && digits.length <= 19;
+}
+
+document.querySelector('#deposit-tab').addEventListener('click', () => {
+  document.querySelector('#deposit-tab').classList.add('active');
+  document.querySelector('#send-tab').classList.remove('active');
+  document.querySelector('#deposit-panel').classList.remove('hidden');
+  document.querySelector('#send-panel').classList.add('hidden');
+});
+
+document.querySelector('#send-tab').addEventListener('click', () => {
+  document.querySelector('#send-tab').classList.add('active');
+  document.querySelector('#deposit-tab').classList.remove('active');
+  document.querySelector('#send-panel').classList.remove('hidden');
+  document.querySelector('#deposit-panel').classList.add('hidden');
+});
+
+document.querySelector('#deposit-submit').addEventListener('click', () => {
+  if (!activeAccount) return;
+  const amount = Number(document.querySelector('#deposit-amount').value);
+  const card = document.querySelector('#deposit-card').value;
+  if (!Number.isFinite(amount) || amount <= 0 || !cardNumberIsUsable(card)) {
+    showMoneyStatus('Deposit failed: enter a positive amount and a 12 to 19 digit demo card number.', false);
+    return;
+  }
+  const digits = card.replace(/\D/g, '');
+  activeAccount.balance += amount;
+  activeAccount.deposited += amount;
+  activeAccount.transactions.unshift({ icon: '+', title: `Postepay demo deposit (•••• ${digits.slice(-4)})`, date: reviewDateLabel(new Date()), amount, type: 'credit' });
+  persistDatabase();
+  renderDashboard(activeAccount, activeAccountKey);
+  showMoneyStatus(`Deposit successful in simulation: ${formatMoney(activeAccount, amount)} added from card ending ${digits.slice(-4)}.`, true);
+  document.querySelector('#deposit-amount').value = '';
+  document.querySelector('#deposit-card').value = '';
+});
+
+document.querySelector('#send-submit').addEventListener('click', () => {
+  if (!activeAccount) return;
+  const amount = Number(document.querySelector('#send-amount').value);
+  const recipient = document.querySelector('#send-recipient').value.trim();
+  if (!Number.isFinite(amount) || amount <= 0 || !recipient) {
+    showMoneyStatus('Transfer failed: enter a positive amount and recipient.', false);
+    return;
+  }
+  if (amount > activeAccount.balance) {
+    showMoneyStatus(`Transfer failed: available balance is ${formatMoney(activeAccount, activeAccount.balance)}.`, false);
+    return;
+  }
+  activeAccount.balance -= amount;
+  activeAccount.withdrawn += amount;
+  activeAccount.transactions.unshift({ icon: '-', title: `Demo transfer to ${recipient}`, date: reviewDateLabel(new Date()), amount: -amount, type: 'debit' });
+  persistDatabase();
+  renderDashboard(activeAccount, activeAccountKey);
+  showMoneyStatus(`Transfer successful in simulation: ${formatMoney(activeAccount, amount)} sent to ${recipient}.`, true);
+  document.querySelector('#send-amount').value = '';
+  document.querySelector('#send-recipient').value = '';
+});
+
 document.querySelector('#install-app').addEventListener('click', async () => {
   if (deferredInstallPrompt) {
     deferredInstallPrompt.prompt();
